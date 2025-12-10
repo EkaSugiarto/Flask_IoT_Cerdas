@@ -6,10 +6,10 @@ import mysql.connector
 # DB CONFIG
 # ============================
 db_config = {
-    'user': 'YOUR_USER',
-    'password': 'YOUR_PASSWORD',
-    'host': 'YOUR_HOST',
-    'database': 'YOUR_DATABASE'
+    'user': 'your_username',
+    'password': 'your_password',
+    'host': 'your_database_host',
+    'database': 'your_database_name'
 }
 
 def get_db():
@@ -55,7 +55,7 @@ def api_post():
     conn = get_db()
     cursor = conn.cursor()
 
-    table = "iot_data"
+    table = "your_table_name"
 
     query = f"""
         INSERT INTO {table} (device, sensor1, sensor2, created_at)
@@ -71,43 +71,37 @@ def api_post():
     return jsonify({"message": "Data inserted successfully"})
 
 # ============================
-# API — GET DATA IoT
-# /api/get/data/<device>?start=xxxx&end=xxxx
+# GET ALL DATA BY DEVICE
 # ============================
-@app.route("/api/get/data/<device>", methods=["GET"])
-def api_get(device):
-
-    start = request.args.get("start")
-    end = request.args.get("end")
-
-    if not start or not end:
-        return jsonify({"error": "start and end query required"}), 400
+@app.route('/api/get/data/<device>', methods=['GET'])
+def get_data(device):
 
     conn = get_db()
     cursor = conn.cursor()
 
-    table = "iot_data"
+    table_name = "your_table_name"
 
     query = f"""
-        SELECT id, device, sensor1, sensor2, created_at
-        FROM {table}
-        WHERE device = %s AND created_at BETWEEN %s AND %s
+        SELECT id, device, sensor1, sensor2 created_at
+        FROM {table_name}
+        WHERE device = %s
         ORDER BY created_at
     """
-    cursor.execute(query, (device, start, end))
 
+    cursor.execute(query, (device,))
     rows = cursor.fetchall()
-    cols = [col[0] for col in cursor.description]
+    columns = [col[0] for col in cursor.description]
 
     cursor.close()
     conn.close()
 
+    # Format JSON response
     result = []
     for row in rows:
         item = {}
-        for col, val in zip(cols, row):
+        for col, val in zip(columns, row):
             if isinstance(val, datetime):
-                item[col] = val.strftime("%Y-%m-%d %H:%M:%S")
+                item[col] = val.strftime('%Y-%m-%d %H:%M:%S')
             else:
                 item[col] = val
         result.append(item)
@@ -115,7 +109,7 @@ def api_get(device):
     return jsonify(result)
 
 # ============================
-# RUNNING FLASK
+# RUN FLASK
 # ============================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
