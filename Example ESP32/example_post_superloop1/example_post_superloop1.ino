@@ -26,6 +26,8 @@ ESP32Time rtc(0);
 
 DHT dht(32, DHT11);
 
+
+// YYYY-MM-DD hh:mm:ss
 String get_date_time(int choose) {
   String string_month, string_day, shour, sminute;
 
@@ -44,6 +46,7 @@ String get_date_time(int choose) {
       break;
   }
 }
+
 
 String get_precission_second(int seconds) {
   String shour, sminute, ssecond;
@@ -124,6 +127,8 @@ String get_uptime() {
   return String(buffer);
 }
 
+
+// Pengiriman data
 String jsonString;
 
 void addJson(String key, String value) {
@@ -187,25 +192,35 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
+    long int start = millis();
     Serial.println("Connecting to WiFi");
+
     char char_ssid[sizeof(ssid)];
     char char_pass[sizeof(pass)];
+
     ssid.toCharArray(char_ssid, sizeof(ssid));
     pass.toCharArray(char_pass, sizeof(pass));
+
     WiFi.hostname(device_name);
+
     WiFi.mode(WIFI_STA);
     WiFi.begin(char_ssid, char_pass);
 
     delay(5000);
+
+    Serial.println("Waktu eksekusi koneksi wifi (ms) = " +  String(millis() - start));
   }
 
   if (WiFi.status() == WL_CONNECTED && (rtc.getYear() < 2025)) {
+    long int start = millis();
     Serial.println("Syncning RTC ...");
     Sync_RTC();
     delay(500);
+    Serial.println("Waktu eksekusi sinkronisasi RTC (ms) = " +  String(millis() - start));
   }
 
   if (WiFi.status() == WL_CONNECTED && rtc.getMillis() < 500 && rtc.getSecond() == 0 && rtc.getMinute() % 2 == 0 && rtc.getYear() >= 2025) {
+    long int start = millis();
     send_2m = true;
 
     client_wifi = new WiFiClientSecure;
@@ -217,9 +232,11 @@ void loop() {
 
     send_2m = false;
     delay(500);
+    Serial.println("Waktu eksekusi post data (ms) = " +  String(millis() - start));
   }
 
   if (!send_2m && rtc.getMillis() < 500 && rtc.getSecond() % 5 == 0 && rtc.getSecond() != 0) {
+    long int start = millis();
     co2 = 450;
     suhu = dht.readTemperature();
     kelembapan = dht.readHumidity();
@@ -230,5 +247,6 @@ void loop() {
     Serial.println("Kelembapan = " + String(kelembapan) + "\n");
 
     delay(500);
+    Serial.println("Waktu eksekusi pembacaan sensor (ms) = " +  String(millis() - start));
   }
 }

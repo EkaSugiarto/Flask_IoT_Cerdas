@@ -6,9 +6,12 @@ bool send_2m = false;
 
 void POSTTimer(void *pvParameters) {
   while (1) {
+    Serial.println("Looping task POSTTimer");
+
     if (WiFi.status() == WL_CONNECTED && (rtc.getYear() < 2025)) {
       Serial.println("Syncning RTC ...");
       Sync_RTC();
+      delay(20000);
       esp_task_wdt_reset();
     }
 
@@ -31,6 +34,7 @@ void POSTTimer(void *pvParameters) {
       send_2m = false;
       delay(1000);
     }
+    
     vTaskDelay(500 / portTICK_PERIOD_MS);
     esp_task_wdt_reset();
   }
@@ -38,6 +42,8 @@ void POSTTimer(void *pvParameters) {
 
 void WiFi_Connect(void *pvParameters) {
   while (1) {
+    Serial.println("Looping task WiFi_Connect");
+
     if (WiFi.status() != WL_CONNECTED) {
       WiFi_status = false;
       Serial.println("Connecting to WiFi");
@@ -48,10 +54,12 @@ void WiFi_Connect(void *pvParameters) {
       WiFi.hostname(device_name);
       WiFi.mode(WIFI_STA);
       WiFi.begin(char_ssid, char_pass);
+      vTaskDelay(10000 / portTICK_PERIOD_MS);
     } else {
       WiFi_status = true;
     }
-    vTaskDelay(10000 / portTICK_PERIOD_MS);
+
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     esp_task_wdt_reset();
   }
 }
