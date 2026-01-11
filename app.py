@@ -12,13 +12,14 @@ st.set_page_config(
     layout="wide"
 )
 
+st.title("AQMS IoT Monitoring Dashboard")
+
 # Auto refresh tiap 2 menit
 st_autorefresh(
     interval=120_000,
     key="iot_autorefresh"
 )
 
-st.title("AQMS IoT Monitoring Dashboard")
 
 # ======================
 # DEVICE CONFIG
