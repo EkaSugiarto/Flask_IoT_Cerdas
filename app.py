@@ -8,7 +8,7 @@ from streamlit_autorefresh import st_autorefresh
 # PAGE CONFIG
 # ======================
 st.set_page_config(
-    page_title="IoT Dashboard",
+    page_title="AQMS IoT Dashboard",
     layout="wide"
 )
 
@@ -25,7 +25,9 @@ st_autorefresh(
 # DEVICE CONFIG
 # ======================
 DEVICE_MAP = {
-    "OAQMS_GKU"
+    "OAQMS_GKU",
+    "OAQMS_TULT",
+    "OAQMS_Deli"
 }
 
 BASE_URL = "https://kelasiotcerdas.pythonanywhere.com/api/get/data"
